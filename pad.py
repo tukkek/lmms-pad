@@ -7,12 +7,12 @@ class Group:
 
 root=tkinter.Tk()
 frame=tkinter.ttk.Frame(root,padding="3 3 12 12")
-groups=[[Group('qwer')],
-        [Group('asdf')],
-        [Group('zxcv')],
-        [Group('7'),Group('8'),Group('9')],
-        [Group('4'),Group('5'),Group('6')],
-        [Group('1'),Group('2'),Group('3')]]
+rows=[[Group('qwer')],
+      [Group('asdf')],
+      [Group('zxcv')],
+      [Group('7'),Group('8'),Group('9')],
+      [Group('4'),Group('5'),Group('6')],
+      [Group('1'),Group('2'),Group('3')]]
 origin=[78,186]
 active=set()
 window=False
@@ -22,25 +22,26 @@ def run(command):
   
 def find(key):
   i=0
-  for row in groups:
-    for group in row:
-      for k in group.keys:
+  for groups in rows:
+    for g in groups:
+      for k in g.keys:
         if k==key:
           return origin[1]+32*i
         i+=1
+  raise Exception('No key?')
         
 def group(key):
-  for row in groups:
-    for group in row:
-      if key in group.keys:
-        return group
-  return False
+  for groups in rows:
+    for g in groups:
+      if key in g.keys:
+        return g
+  raise Exception('No group?')
 
 def focus():
   global window
   if not window:
     window=run('xdotool search --name "LMMS pad"').stdout.strip()
-  run('xdotool windowfocus '+window)
+  run(f'xdotool windowfocus {window}')
 
 def activate(key):
   for k in group(key).keys:
@@ -64,9 +65,9 @@ def setup():
   root.columnconfigure(0,weight=1)
   root.rowconfigure(0,weight=1)
   frame.grid(column=0,row=0)
-  for i,row in enumerate(groups):
+  for i,groups in enumerate(rows):
     column=0
-    for group in row:
+    for group in groups:
       for k in group.keys:
         do=lambda k=k:activate(k)
         tkinter.ttk.Button(frame,text=k,command=do).grid(column=column,row=i)
