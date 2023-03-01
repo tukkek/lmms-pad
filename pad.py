@@ -1,9 +1,6 @@
 #!/usr/bin/python3
 import tkinter,tkinter.ttk,subprocess
 
-KEYS=['qwert789','asdfg465','zxcvb123']
-REFOCUS='xdotool windowfocus `xdotool search --name "LMMS pad"`'
-
 class Group:
   def __init__(self,keys):
     self.keys=keys
@@ -18,9 +15,10 @@ groups=[[Group('qwer')],
         [Group('1'),Group('2'),Group('3')]]
 origin=[78,186]
 active=set()
+window=False
 
 def run(command):
-  subprocess.run(command,shell=True)
+  return subprocess.run(command,shell=True,capture_output=True,encoding='utf8')
   
 def find(key):
   i=0
@@ -38,6 +36,12 @@ def group(key):
         return group
   return False
 
+def focus():
+  global window
+  if not window:
+    window=run('xdotool search --name "LMMS pad"').stdout.strip()
+  run('xdotool windowfocus '+window)
+
 def activate(key):
   for k in group(key).keys:
     if k==key and k not in active:
@@ -49,7 +53,7 @@ def activate(key):
     x=origin[0]
     y=find(k)
     run(f'xdotool mousemove {x} {y} click 1')
-  run(REFOCUS)
+  focus()
   
 def mute():
   for a in list(active):
