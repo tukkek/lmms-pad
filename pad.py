@@ -5,15 +5,17 @@ KEYS=['qwert789','asdfg465','zxcvb123']
 REFOCUS='xdotool windowfocus `xdotool search --name "LMMS pad"`'
 
 class Group:
-  def __init__(self,keys,color):
+  def __init__(self,keys):
     self.keys=keys
-    self.color=color
 
 root=tkinter.Tk()
 frame=tkinter.ttk.Frame(root,padding="3 3 12 12")
-groups=[[Group('qwer','red'),Group('789','red')],
-        [Group('asdf','yellow'),Group('456','red')],
-        [Group('zxcv','blue'),Group('123','red')]]
+groups=[[Group('qwer')],
+        [Group('asdf')],
+        [Group('zxcv')],
+        [Group('7'),Group('8'),Group('9')],
+        [Group('4'),Group('5'),Group('6')],
+        [Group('1'),Group('2'),Group('3')]]
 origin=[78,186]
 active=set()
 
@@ -36,11 +38,9 @@ def group(key):
         return group
   return False
 
-def press(key):
-  if key in active:
-    return
+def activate(key):
   for k in group(key).keys:
-    if k==key:
+    if k==key and k not in active:
       active.add(k)
     elif k in active:
       active.remove(k)
@@ -51,26 +51,27 @@ def press(key):
     run(f'xdotool mousemove {x} {y} click 1')
   run(REFOCUS)
   
-def calibrate():
-  print('calibrate')
+def mute():
+  for a in list(active):
+    activate(a)
 
 def setup():
   root.title("LMMS pad")
   root.columnconfigure(0,weight=1)
   root.rowconfigure(0,weight=1)
   frame.grid(column=0,row=0)
-  tkinter.ttk.Button(frame,text='Calibrate',command=calibrate).grid(column=0,row=0)
   for i,row in enumerate(groups):
     column=0
     for group in row:
       for k in group.keys:
-        tkinter.ttk.Button(frame,text=k,command=lambda k=k:press(k)).grid(column=column,row=i+1)
-        root.bind(k,lambda x,k=k:press(k))
+        do=lambda k=k:activate(k)
+        tkinter.ttk.Button(frame,text=k,command=do).grid(column=column,row=i)
+        root.bind(k,lambda x,k=k:activate(k))
         if k.isnumeric():
-          root.bind(f'<KP_{k}>',lambda x,k=k:press(k))
+          root.bind(f'<KP_{k}>',lambda x,k=k:activate(k))
         column+=1
-  #for c in frame.winfo_children(): 
-  #    c.grid_configure(padx=5,pady=5)
+  tkinter.ttk.Button(frame,text='Mute',command=mute).grid(column=0,row=6)
+  root.bind('m',lambda x:mute())
   root.bind('<Escape>',lambda x:root.destroy())
   root.mainloop()
 
