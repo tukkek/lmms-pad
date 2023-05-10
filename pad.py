@@ -59,6 +59,10 @@ def activate(key):
 def mute():
   for a in list(active):
     activate(a)
+    
+def reset():
+  global active
+  active=set()
 
 def setup():
   root.title("LMMS pad")
@@ -76,6 +80,7 @@ def setup():
           root.bind(f'<KP_{k}>',lambda x,k=k:activate(k))
         column+=1
   tkinter.ttk.Button(frame,text='Mute',command=mute).grid(column=0,row=6)
+  tkinter.ttk.Button(frame,text='Reset',command=reset).grid(column=1,row=6)
   root.bind('m',lambda x:mute())
   root.bind('<Escape>',lambda x:root.destroy())
   root.mainloop()
